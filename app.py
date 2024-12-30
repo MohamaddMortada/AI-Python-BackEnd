@@ -1,5 +1,5 @@
 from flask import Flask
-from image_controller import image_routes
+from start_image_controller import image_routes
 from video_controller import video_routes
 
 app = Flask(__name__)
