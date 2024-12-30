@@ -1,15 +1,15 @@
-from flask import Flask, request, jsonify
+from flask import Blueprint, request, jsonify
 import cv2
 import mediapipe as mp
 import numpy as np
 from angle_calculator import calculate_angle
 
-app = Flask(__name__)
+video_routes = Blueprint('video_routes', __name__)
 
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
-@app.route('/detect_video', methods=['POST'])
+@video_routes.route('/detect_video', methods=['POST'])
 def detect_pose():
     if 'video' not in request.files:
         return jsonify({'error': 'No video provided'}), 400
@@ -23,6 +23,8 @@ def detect_pose():
         return jsonify({'error': 'Could not open the video'}), 400
 
     angles_data = {
+        'left_arm': False,
+        'right_arm': False,
         'left_leg': False,
         'right_leg': False
     }
@@ -42,6 +44,16 @@ def detect_pose():
             if results.pose_landmarks:
                 landmarks = results.pose_landmarks.landmark
 
+                shoulderLeft = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+                elbowLeft = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+                wristLeft = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+                angleLeftArm = calculate_angle(shoulderLeft, elbowLeft, wristLeft)
+
+                shoulderRight = [landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y]
+                elbowRight = [landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value].y]
+                wristRight = [landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].y]
+                angleRightArm = calculate_angle(shoulderRight, elbowRight, wristRight)
+
                 hipLeft = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
                 kneeLeft = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
                 ankleLeft = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
@@ -52,9 +64,16 @@ def detect_pose():
                 ankleRight = [landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y]
                 angleRightLeg = calculate_angle(hipRight, kneeRight, ankleRight)
 
-                if angleLeftLeg >= 90:
+                if angleLeftArm >= 170:
+                    angles_data['left_arm'] = True
+
+                if angleRightArm >= 170:
+                    angles_data['right_arm'] = True
+
+                if angleLeftLeg >= 170:
                     angles_data['left_leg'] = True
-                if angleRightLeg >= 90:
+
+                if angleRightLeg >= 170:
                     angles_data['right_leg'] = True
 
             mp_drawing.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
@@ -62,6 +81,3 @@ def detect_pose():
         cap.release()
 
     return jsonify(angles_data)
-
-if __name__ == '__main__':
-    app.run(debug=True)
