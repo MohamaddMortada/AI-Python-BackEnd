@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 import cv2
 import mediapipe as mp
 import numpy as np
+from accuracy_calculator import calculate_accuracy
 from angle_calculator import calculate_angle
 
 image_routes = Blueprint('image_routes', __name__)
@@ -9,7 +10,7 @@ image_routes = Blueprint('image_routes', __name__)
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
-@image_routes.route('/detect_image', methods=['POST'])
+@image_routes.route('/start_image', methods=['POST'])
 def detect_pose():
     if 'image' not in request.files:
         return jsonify({'error': 'No image provided'}), 400
@@ -29,8 +30,7 @@ def detect_pose():
         angles_data = {
         'left_arm': False,
         'right_arm': False,
-        'left_pose': False,
-        'right_pose': False
+        'leg_pose': False,
         }
         
         landmarks = results.pose_landmarks.landmark
@@ -60,11 +60,10 @@ def detect_pose():
         ankleRight = [landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y]
         angles['right_leg'] = calculate_angle(hipRight, kneeRight, ankleRight)
 
-        if 60 >= angles['left_leg'] >= 50 and 90 >= angles['right_leg'] >= 80:
-                    angles_data['left_pose'] = True
-        if 60 >= angles['right_leg'] >= 50 and 90 >= angles['left_leg'] >= 80:
-                    angles_data['right_pose'] = True
-        
-        return jsonify(angles,angles_data)
+        if (60 >= angles['left_leg'] >= 50 and 90 >= angles['right_leg'] >= 80) or (60 >= angles['right_leg'] >= 50 and 90 >= angles['left_leg'] >= 80):
+                    angles_data['leg_pose'] = True
+        correct_percentage, incorrect_percentage = calculate_accuracy(angles_data)
+         
+        return jsonify(correct_percentage, incorrect_percentage)
     
     return jsonify({'error': 'No pose landmarks detected'}), 400
