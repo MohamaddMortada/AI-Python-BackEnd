@@ -2,15 +2,15 @@ from flask import Blueprint, request, jsonify
 import cv2
 import mediapipe as mp
 import numpy as np
-from accuracy_calculator import calculate_accuracy
-from angle_calculator import calculate_angle
+from Controllers.accuracy_calculator import calculate_accuracy
+from Controllers.angle_calculator import calculate_angle
 
-image_routes = Blueprint('image_routes', __name__)
+set_image = Blueprint('set_image', __name__)
 
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
-@image_routes.route('/start_image', methods=['POST'])
+@set_image.route('/set_image', methods=['POST'])
 def detect_pose():
     if 'image' not in request.files:
         return jsonify({'error': 'No image provided'}), 400
@@ -31,6 +31,7 @@ def detect_pose():
         'left_arm': False,
         'right_arm': False,
         'leg_pose': False,
+        'ankle_pose': False,
         }
         
         landmarks = results.pose_landmarks.landmark
@@ -60,10 +61,20 @@ def detect_pose():
         ankleRight = [landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y]
         angles['right_leg'] = calculate_angle(hipRight, kneeRight, ankleRight)
 
-        if (60 >= angles['left_leg'] >= 50 and 90 >= angles['right_leg'] >= 80) or (60 >= angles['right_leg'] >= 50 and 90 >= angles['left_leg'] >= 80):
+        indexLeft = [landmarks[mp_pose.PoseLandmark.LEFT_FOOT_INDEX.value].x, landmarks[mp_pose.PoseLandmark.LEFT_FOOT_INDEX.value].y]
+        angles['left_ankle'] = calculate_angle(kneeLeft, ankleLeft, indexLeft)
+
+        indexRight = [landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].y]
+        angles['right_ankle'] = calculate_angle(kneeRight, ankleRight, indexRight)
+        
+        if (130 >= angles['left_ankle'] >= 120 and 140 >= angles['right_ankle'] >= 130) or (130 >= angles['right_ankle'] >= 120 and 140 >= angles['left_ankle'] >= 130):
+                angles_data['ankle_pose'] = True
+
+        if (130 >= angles['left_leg'] >= 120 and 150 >= angles['right_leg'] >= 140) or (130 >= angles['right_leg'] >= 120 and 150 >= angles['left_leg'] >= 140):
                     angles_data['leg_pose'] = True
+    
         correct_percentage, incorrect_percentage = calculate_accuracy(angles_data)
          
-        return jsonify(correct_percentage, incorrect_percentage)
+        return jsonify(angles,angles_data,correct_percentage, incorrect_percentage)
     
     return jsonify({'error': 'No pose landmarks detected'}), 400

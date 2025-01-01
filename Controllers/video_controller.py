@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 import cv2
 import mediapipe as mp
 import numpy as np
-from angle_calculator import calculate_angle
+from Controllers.angle_calculator import calculate_angle
 
 video_routes = Blueprint('video_routes', __name__)
 
