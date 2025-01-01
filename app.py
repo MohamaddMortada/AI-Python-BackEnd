@@ -5,6 +5,7 @@ from Controllers.set_image_controller import set_image
 from Controllers.hop_image_controller import hop_image_routes
 from Controllers.drive_image_controller import drive_image_routes
 from Controllers.sprint_image_controller import sprint_image_routes
+from Controllers.run_image_controller import run_image_routes
 
 app = Flask(__name__)
 
@@ -13,6 +14,7 @@ app.register_blueprint(set_image)
 app.register_blueprint(hop_image_routes)
 app.register_blueprint(drive_image_routes)
 app.register_blueprint(sprint_image_routes)
+app.register_blueprint(run_image_routes)
 app.register_blueprint(video_routes)
 
 if __name__ == '__main__':
