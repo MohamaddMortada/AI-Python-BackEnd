@@ -70,10 +70,10 @@ def detect_pose():
         if 150 >= angles['right_arm'] >= 90 :
                 angles_data['right_arm'] = True
 
-        if 145 >= angles['left_ankle'] >= 130 or 145 >= angles['right_ankle'] >= 130:
+        if 140 >= angles['left_ankle'] >= 90 or 140 >= angles['right_ankle'] >= 90:
                angles_data['straight_ankle'] = True
 
-        if 130 >= angles['left_ankle'] >= 90 or 130 >= angles['right_ankle'] >= 90:
+        if 120 >= angles['left_ankle'] >= 80 or 120 >= angles['right_ankle'] >= 80:
                angles_data['curved_ankle'] = True
             
         if (175 >= angles['left_leg'] >= 165) or (175 >= angles['right_leg'] >= 165):
