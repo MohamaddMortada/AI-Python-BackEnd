@@ -103,5 +103,5 @@ def detect_pose():
 
                 cap.release()
 
-                return jsonify(angles_data)
+                return jsonify(correct_percentage)
             return jsonify({'error': 'No pose landmarks detected'}), 400
