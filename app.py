@@ -9,6 +9,7 @@ from Controllers.run_image_controller import run_image_routes
 from Controllers.drive_video_controller import drive_video_routes
 from Controllers.hop_video_controller import hop_video_routes
 from Controllers.set_video_controller import set_video_routes
+from Controllers.event_controller import get_id_routes
 
 app = Flask(__name__)
 
@@ -22,6 +23,7 @@ app.register_blueprint(video_routes)
 app.register_blueprint(drive_video_routes)
 app.register_blueprint(hop_video_routes)
 app.register_blueprint(set_video_routes)
+app.register_blueprint(get_id_routes)
 
 if __name__ == '__main__':
     app.run(debug=True)
