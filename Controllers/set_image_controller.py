@@ -37,7 +37,6 @@ def detect_pose():
 
         landmarks = results.pose_landmarks.landmark
 
-        # Left Arm Angle Calculation
         shoulderLeft = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
         elbowLeft = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
         wristLeft = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
@@ -46,7 +45,6 @@ def detect_pose():
             angles_data['left_arm'] = True
             angles_that_make_true['left_arm'] = angles['left_arm']
 
-        # Right Arm Angle Calculation
         shoulderRight = [landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y]
         elbowRight = [landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value].y]
         wristRight = [landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].y]
@@ -55,32 +53,26 @@ def detect_pose():
             angles_data['right_arm'] = True
             angles_that_make_true['right_arm'] = angles['right_arm']
 
-        # Left Leg Angle Calculation
         hipLeft = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
         kneeLeft = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
         ankleLeft = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
         angles['left_leg'] = calculate_angle(hipLeft, kneeLeft, ankleLeft)
 
-        # Right Leg Angle Calculation
         hipRight = [landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].y]
         kneeRight = [landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].y]
         ankleRight = [landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y]
         angles['right_leg'] = calculate_angle(hipRight, kneeRight, ankleRight)
 
-        # Left Ankle Angle Calculation
         indexLeft = [landmarks[mp_pose.PoseLandmark.LEFT_FOOT_INDEX.value].x, landmarks[mp_pose.PoseLandmark.LEFT_FOOT_INDEX.value].y]
         angles['left_ankle'] = calculate_angle(kneeLeft, ankleLeft, indexLeft)
 
-        # Right Ankle Angle Calculation
         indexRight = [landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].x, landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].y]
         angles['right_ankle'] = calculate_angle(kneeRight, ankleRight, indexRight)
 
-        # Ankle Pose Check
         if (130 >= angles['left_ankle'] >= 120 and 140 >= angles['right_ankle'] >= 130) or (130 >= angles['right_ankle'] >= 120 and 140 >= angles['left_ankle'] >= 130):
             angles_data['ankle_pose'] = True
             angles_that_make_true['ankle_pose'] = (angles['left_ankle'], angles['right_ankle'])
 
-        # Leg Pose Check
         if (130 >= angles['left_leg'] >= 120 and 150 >= angles['right_leg'] >= 140) or (130 >= angles['right_leg'] >= 120 and 150 >= angles['left_leg'] >= 140):
             angles_data['leg_pose'] = True
             angles_that_make_true['leg_pose'] = (angles['left_leg'], angles['right_leg'])
@@ -88,11 +80,7 @@ def detect_pose():
         correct_percentage, incorrect_percentage = calculate_accuracy(angles_data)
 
         return jsonify({
-            'angles': angles,
-            'angles_data': angles_data,
-            'angles_that_make_true': angles_that_make_true,
             'correct_percentage': correct_percentage,
-            'incorrect_percentage': incorrect_percentage
         })
 
     return jsonify({'error': 'No pose landmarks detected'}), 400
