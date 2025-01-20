@@ -64,6 +64,16 @@ def detect_pose():
                     angles_data['leg_pose'] = True
         correct_percentage, incorrect_percentage = calculate_accuracy(angles_data)
          
-        return jsonify(correct_percentage)
+        return jsonify({
+            'correct_percentage': correct_percentage,
+            'angles': angles,
+            'angles_data': angles_data,
+            'correct_angles': {
+            'left_leg': (50, 60),
+            'right_leg': (80, 90),
+            'arm': 170
+            }
+        })
+
     
     return jsonify({'error': 'No pose landmarks detected'}), 400

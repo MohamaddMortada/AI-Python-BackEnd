@@ -10,6 +10,8 @@ from Controllers.drive_video_controller import drive_video_routes
 from Controllers.hop_video_controller import hop_video_routes
 from Controllers.set_video_controller import set_video_routes
 from Controllers.start_video_controller import start_video_routes
+from Controllers.run_video_controller import run_video_routes
+from Controllers.sprint_video_controller import sprint_video_routes
 from Controllers.event_controller import get_id_routes
 from Controllers.middle_crossing_controller import middle_crossing_routes
 
@@ -26,6 +28,8 @@ app.register_blueprint(drive_video_routes)
 app.register_blueprint(hop_video_routes)
 app.register_blueprint(set_video_routes)
 app.register_blueprint(start_video_routes)
+app.register_blueprint(run_video_routes)
+app.register_blueprint(sprint_video_routes)
 app.register_blueprint(get_id_routes)
 app.register_blueprint(middle_crossing_routes)
 
